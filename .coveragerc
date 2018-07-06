@@ -1,0 +1,7 @@
+[paths]
+source = media_guard
+
+[run]
+omit =
+    env
+    */tests/*
