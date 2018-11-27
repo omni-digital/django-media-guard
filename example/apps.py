@@ -4,5 +4,6 @@ from django.apps import AppConfig
 
 class ExampleAppConfig(AppConfig):
     """Django AppConfig integration for `example` module."""
-    name = 'example'
-    verbose_name = 'Example'
+
+    name = "example"
+    verbose_name = "Example"

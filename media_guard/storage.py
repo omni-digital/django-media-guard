@@ -15,5 +15,5 @@ class ProtectedFileSystemStorage(FileSystemStorage):
     """
 
     def __init__(self, *args, **kwargs):
-        kwargs.update({'location': settings.MEDIAGUARD_ROOT})
+        kwargs.update({"location": settings.MEDIAGUARD_ROOT})
         super().__init__(*args, **kwargs)

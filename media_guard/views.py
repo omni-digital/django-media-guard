@@ -14,7 +14,7 @@ from media_guard import backends
 from media_guard.exceptions import MediaguardMissingBackend
 
 
-FileMetadata = namedtuple('FileMetadata', ['mimetype', 'encoding'])
+FileMetadata = namedtuple("FileMetadata", ["mimetype", "encoding"])
 
 
 class MediaGuardViewFile(View):
@@ -28,20 +28,20 @@ class MediaGuardViewFile(View):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        if not hasattr(settings, 'MEDIAGUARD_BACKEND'):
+        if not hasattr(settings, "MEDIAGUARD_BACKEND"):
             raise exceptions.ImproperlyConfigured(
-                'MEDIAGUARD_BACKEND not configured in settings.'
+                "MEDIAGUARD_BACKEND not configured in settings."
             )
 
         if not hasattr(backends, settings.MEDIAGUARD_BACKEND):
             raise MediaguardMissingBackend(
-                'MEDIAGUARD_BACKEND is set to a backend which does not exist.'
+                "MEDIAGUARD_BACKEND is set to a backend which does not exist."
             )
 
         self.backend = getattr(backends, settings.MEDIAGUARD_BACKEND)()
         self.file_info = None
-        self.abs_media_path = ''
-        self.rel_media_path = ''
+        self.abs_media_path = ""
+        self.rel_media_path = ""
 
     # a list of user permissions to check against
     required_user_permissions = []
@@ -61,21 +61,21 @@ class MediaGuardViewFile(View):
         return False
 
     # the relative path to the protected media file
-    media_file_path = ''
+    media_file_path = ""
 
     def get_media_file_path(self, request, *args, **kwargs):
         """Load the protected media file path relative to settings.MEDIAGUARD_ROOT."""
-        if self.media_file_path == '':
+        if self.media_file_path == "":
             raise ValueError(
-                'Media file path not configured and method not overridden.'
+                "Media file path not configured and method not overridden."
             )
 
         return self.media_file_path
 
     # optional hardcoded mimetype
-    media_mimetype = ''
+    media_mimetype = ""
 
-    def get_media_mimetype(self, guessed_mimetype=''):
+    def get_media_mimetype(self, guessed_mimetype=""):
         """
         Return mimetype if set, if not return the guessed mimetype OR
         application/octet-stream as the fallback.
@@ -83,11 +83,11 @@ class MediaGuardViewFile(View):
         if self.media_mimetype:
             return self.media_mimetype
 
-        return guessed_mimetype if guessed_mimetype else 'application/octet-stream'
+        return guessed_mimetype if guessed_mimetype else "application/octet-stream"
 
-    media_encoding = ''
+    media_encoding = ""
 
-    def get_media_encoding(self, guessed_encoding=''):
+    def get_media_encoding(self, guessed_encoding=""):
         """Return hardcoded mimetype if set, else return the encoding guessed."""
         if self.media_encoding:
             return self.media_encoding
@@ -114,9 +114,7 @@ class MediaGuardViewFile(View):
             return self.handle_permission_denied(request, *args, **kwargs)
 
         # get our media path relative to the media root
-        self.rel_media_path = str(
-            self.get_media_file_path(request, *args, **kwargs)
-        )
+        self.rel_media_path = str(self.get_media_file_path(request, *args, **kwargs))
 
         # load the absolute path
         self.abs_media_path = path.abspath(
@@ -134,9 +132,9 @@ class MediaGuardViewFile(View):
     def get(self, request, *args, **kwargs):
         """Load the file into the response."""
         response = self.backend.serve(request, self.abs_media_path)
-        response['Content-Type'] = self.file_info.mimetype
-        response['Content-Length'] = path.getsize(self.abs_media_path)
-        response['Content-Encoding'] = self.file_info.encoding
+        response["Content-Type"] = self.file_info.mimetype
+        response["Content-Length"] = path.getsize(self.abs_media_path)
+        response["Content-Encoding"] = self.file_info.encoding
         return response
 
     def _traversal_guard(self):
@@ -148,12 +146,11 @@ class MediaGuardViewFile(View):
         scope of the root folder.
         """
         abs_mediaguard_root = path.abspath(settings.MEDIAGUARD_ROOT)
-        if not path.commonpath([abs_mediaguard_root]) == path.commonpath([
-            abs_mediaguard_root,
-            self.abs_media_path
-        ]):
+        if not path.commonpath([abs_mediaguard_root]) == path.commonpath(
+            [abs_mediaguard_root, self.abs_media_path]
+        ):
             raise exceptions.SuspiciousFileOperation(
-                'Potential directory traversal attack'
+                "Potential directory traversal attack"
             )
 
 
@@ -164,16 +161,16 @@ class MediaGuardDownloadFile(MediaGuardViewFile):
         return force_text(path.basename(filepath))
 
     def get_ascii_filename(self, filename):
-        return unicode_normalize('NFKD', filename).encode('ascii', 'ignore')
+        return unicode_normalize("NFKD", filename).encode("ascii", "ignore")
 
     def get_parts(self, *args, **kwargs):
         """Calculate the content disposition parts."""
-        parts = ['attachment']
+        parts = ["attachment"]
         filename = self.get_filename(self.abs_media_path)
         unicode_filename = self.get_ascii_filename(filename)
-        parts.append('filename={}'.format(unicode_filename))
+        parts.append("filename={}".format(unicode_filename))
         if filename != unicode_filename:
-            parts.append('filename*=UTF-8\'\'{}'.format(urlquote(filename)))
+            parts.append("filename*=UTF-8''{}".format(urlquote(filename)))
         return parts
 
     def get(self, request, *args, **kwargs):
@@ -182,5 +179,5 @@ class MediaGuardDownloadFile(MediaGuardViewFile):
         the response.
         """
         response = super().get(request, *args, **kwargs)
-        response['Content-Disposition'] = '; '.join(self.get_parts(*args, **kwargs))
+        response["Content-Disposition"] = "; ".join(self.get_parts(*args, **kwargs))
         return response

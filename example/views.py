@@ -32,10 +32,10 @@ class DownloadableFileView(SingleObjectMixin, MediaGuardViewFile):
                 product = Item.objects.get(asset=self.object.asset)
             except Item.DoesNotExist:
                 raise PermissionDenied()
-            messages.warning(request, 'You do not currently own a copy of this asset.')
-            return redirect(reverse('item_detail', kwargs={'pk': product.pk}))
-        messages.warning(request, 'You must be logged in to view this.')
-        return redirect(reverse('users:login'))
+            messages.warning(request, "You do not currently own a copy of this asset.")
+            return redirect(reverse("item_detail", kwargs={"pk": product.pk}))
+        messages.warning(request, "You must be logged in to view this.")
+        return redirect(reverse("users:login"))
 
     def has_required_user_permissions(self, request, *args, **kwargs):
         """Test the is_public user permission."""

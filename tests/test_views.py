@@ -18,13 +18,13 @@ class MediaGuardViewFileTestCase(TestCase):
         with self.assertRaises(ImproperlyConfigured):
             MediaGuardViewFile()
 
-    @override_settings(MEDIAGUARD_BACKEND='MediaGuardNginxBackend')
+    @override_settings(MEDIAGUARD_BACKEND="MediaGuardNginxBackend")
     def test_loads_correct_backend(self):
         """The view should load the correct backend when set."""
         view = MediaGuardViewFile()
         self.assertIsInstance(view.backend, MediaGuardNginxBackend)
 
-    @override_settings(MEDIAGUARD_BACKEND='MediaGuardNetscapeNavigatorBackend')
+    @override_settings(MEDIAGUARD_BACKEND="MediaGuardNetscapeNavigatorBackend")
     def test_handles_missing_backend(self):
         """
         The view should handle missing backends one that doesn't exist is

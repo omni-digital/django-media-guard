@@ -9,40 +9,93 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Asset',
+            name="Asset",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=256, verbose_name='name')),
-                ('description', models.TextField(blank=True, verbose_name='description')),
-                ('download_url', models.URLField(blank=True, null=True)),
-                ('video_url', models.URLField(blank=True, null=True)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=256, verbose_name="name")),
+                (
+                    "description",
+                    models.TextField(blank=True, verbose_name="description"),
+                ),
+                ("download_url", models.URLField(blank=True, null=True)),
+                ("video_url", models.URLField(blank=True, null=True)),
             ],
         ),
         migrations.CreateModel(
-            name='DownloadableFile',
+            name="DownloadableFile",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('is_public', models.BooleanField(default=False)),
-                ('file', models.FileField(storage=media_guard.storage.ProtectedFileSystemStorage(), upload_to='assets')),
-                ('name', models.CharField(help_text='An internal name for the purposes of searching.', max_length=512)),
-                ('asset', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='related_files', to='example.Asset')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("is_public", models.BooleanField(default=False)),
+                (
+                    "file",
+                    models.FileField(
+                        storage=media_guard.storage.ProtectedFileSystemStorage(),
+                        upload_to="assets",
+                    ),
+                ),
+                (
+                    "name",
+                    models.CharField(
+                        help_text="An internal name for the purposes of searching.",
+                        max_length=512,
+                    ),
+                ),
+                (
+                    "asset",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="related_files",
+                        to="example.Asset",
+                    ),
+                ),
             ],
-            options={
-                'abstract': False,
-            },
+            options={"abstract": False},
         ),
         migrations.CreateModel(
-            name='Item',
+            name="Item",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=256, verbose_name='name')),
-                ('description', models.TextField(blank=True, verbose_name='description')),
-                ('asset', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='downloadable_files', to='example.Asset')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=256, verbose_name="name")),
+                (
+                    "description",
+                    models.TextField(blank=True, verbose_name="description"),
+                ),
+                (
+                    "asset",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="downloadable_files",
+                        to="example.Asset",
+                    ),
+                ),
             ],
         ),
     ]
