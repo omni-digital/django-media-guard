@@ -81,13 +81,16 @@ class MediaGuardBaseView(View):
 
         return self.media_file_path
 
-    def get_media_mimetype(self, guessed_mimetype=self.DEFAULT_MIMETYPE) -> str:
+    def get_media_mimetype(self, guessed_mimetype=None) -> str:
         """
         Return mimetype if set, if not return the guessed mimetype OR
         application/octet-stream as the fallback.
         """
         if self.media_mimetype_override:
             return self.media_mimetype_override
+
+        if not guessed_mimetype:
+            return self.DEFAULT_MIMETYPE
 
         return guessed_mimetype
 
