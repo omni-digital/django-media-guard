@@ -17,7 +17,7 @@ from media_guard.exceptions import MediaguardMissingBackend
 FileMetadata = namedtuple("FileMetadata", ["mimetype", "encoding"])
 
 
-class MediaGuardViewFile(View):
+class MediaGuardBaseView(View):
     """Base Media Guard view.
 
     Intended to be subclassed by your domain specific integration. Checks that
@@ -25,6 +25,8 @@ class MediaGuardViewFile(View):
     calculates the various Content Headers required to correctly serve it,
     then serves it.
     """
+
+    DEFAULT_MIMETYPE = "application/octet-stream"
 
     file_info = None
     abs_media_path = ""
@@ -35,7 +37,7 @@ class MediaGuardViewFile(View):
     # the relative path to the protected media file
     media_file_path = ""
     # optional hardcoded mimetype
-    media_mimetype = ""
+    media_mimetype_override = ""
     media_encoding = ""
 
     def __init__(self, *args, **kwargs):
@@ -52,7 +54,7 @@ class MediaGuardViewFile(View):
 
         self.backend = getattr(backends, settings.MEDIAGUARD_BACKEND)()
 
-    def has_required_user_permissions(self, request, *args, **kwargs):
+    def has_permissions(self, request, *args, **kwargs):
         """
         Iterate through all specified user permissions and check that they are present on
         the user.
@@ -63,7 +65,7 @@ class MediaGuardViewFile(View):
             return False
 
         # return True if all required user permissions have been met
-        return all(
+        return any(
             [
                 request.user.has_perm(permission)
                 for permission in self.required_user_permissions
@@ -79,21 +81,22 @@ class MediaGuardViewFile(View):
 
         return self.media_file_path
 
-    def get_media_mimetype(self, guessed_mimetype=None) -> str:
+    def get_media_mimetype(self, guessed_mimetype=self.DEFAULT_MIMETYPE) -> str:
         """
         Return mimetype if set, if not return the guessed mimetype OR
         application/octet-stream as the fallback.
         """
-        if self.media_mimetype:
-            return self.media_mimetype
+        if self.media_mimetype_override:
+            return self.media_mimetype_override
 
-        return guessed_mimetype if guessed_mimetype else "application/octet-stream"
+        return guessed_mimetype
 
     def get_media_encoding(self, guessed_encoding="") -> str:
         """Return hardcoded mimetype if set, else return the encoding guessed."""
         if self.media_encoding:
             return self.media_encoding
 
+        # TODO default encoding?
         return guessed_encoding
 
     def get_file_information(self, file_path) -> FileMetadata:
@@ -112,7 +115,7 @@ class MediaGuardViewFile(View):
 
     def dispatch(self, request, *args, **kwargs):
         """Common file checking and loading functionality."""
-        if not self.has_required_user_permissions(request, *args, **kwargs):
+        if not self.has_permissions(request, *args, **kwargs):
             return self.handle_permission_denied(request, *args, **kwargs)
 
         # get our media path relative to the media root
@@ -156,7 +159,11 @@ class MediaGuardViewFile(View):
             )
 
 
-class MediaGuardDownloadFile(MediaGuardViewFile):
+class MediaGuardInspectView(MediaGuardBaseView):
+    pass
+
+
+class MediaGuardDownloadView(MediaGuardBaseView):
     """Download file instead of viewing.."""
 
     def get_filename(self, filepath):
