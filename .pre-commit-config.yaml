@@ -1,0 +1,17 @@
+fail_fast: false
+repos:
+  - repo: git://github.com/pre-commit/pre-commit-hooks
+    sha: v1.2.0
+    hooks:
+      - id: debug-statements  # check for existence of pdb / ipdb/ pudb statements
+      - id: end-of-file-fixer  # ensure all files have a single newline at the end
+      - id: flake8
+        stages:
+          - push  # only run on pre-push so that development can happen unhindered
+      - id: trailing-whitespace  # remove any trailing whitespace
+  - repo: https://github.com/ambv/black
+    sha: 18.9b0
+    hooks:
+    - id: black
+      args: [--safe]
+      python_version: python3.6
