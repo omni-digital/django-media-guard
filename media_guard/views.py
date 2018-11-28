@@ -26,6 +26,18 @@ class MediaGuardViewFile(View):
     then serves it.
     """
 
+    file_info = None
+    abs_media_path = ""
+    rel_media_path = ""
+
+    # a list of user permissions to check against
+    required_user_permissions = []
+    # the relative path to the protected media file
+    media_file_path = ""
+    # optional hardcoded mimetype
+    media_mimetype = ""
+    media_encoding = ""
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if not hasattr(settings, "MEDIAGUARD_BACKEND"):
@@ -39,12 +51,6 @@ class MediaGuardViewFile(View):
             )
 
         self.backend = getattr(backends, settings.MEDIAGUARD_BACKEND)()
-        self.file_info = None
-        self.abs_media_path = ""
-        self.rel_media_path = ""
-
-    # a list of user permissions to check against
-    required_user_permissions = []
 
     def has_required_user_permissions(self, request, *args, **kwargs):
         """
@@ -53,17 +59,18 @@ class MediaGuardViewFile(View):
 
         TODO: consider removing, this may be too assumptive of how the package is used?
         """
-        if self.required_user_permissions:
-            user_permissions = []
-            for permission in self.required_user_permissions:
-                user_permissions.append(request.user.has_perm(permission))
-            return all(user_permissions)
-        return False
+        if not self.required_user_permissions:
+            return False
 
-    # the relative path to the protected media file
-    media_file_path = ""
+        # return True if all required user permissions have been met
+        return all(
+            [
+                request.user.has_perm(permission)
+                for permission in self.required_user_permissions
+            ]
+        )
 
-    def get_media_file_path(self, request, *args, **kwargs):
+    def get_media_file_path(self, request, *args, **kwargs) -> str:
         """Load the protected media file path relative to settings.MEDIAGUARD_ROOT."""
         if self.media_file_path == "":
             raise ValueError(
@@ -72,10 +79,7 @@ class MediaGuardViewFile(View):
 
         return self.media_file_path
 
-    # optional hardcoded mimetype
-    media_mimetype = ""
-
-    def get_media_mimetype(self, guessed_mimetype=""):
+    def get_media_mimetype(self, guessed_mimetype=None) -> str:
         """
         Return mimetype if set, if not return the guessed mimetype OR
         application/octet-stream as the fallback.
@@ -85,16 +89,14 @@ class MediaGuardViewFile(View):
 
         return guessed_mimetype if guessed_mimetype else "application/octet-stream"
 
-    media_encoding = ""
-
-    def get_media_encoding(self, guessed_encoding=""):
+    def get_media_encoding(self, guessed_encoding="") -> str:
         """Return hardcoded mimetype if set, else return the encoding guessed."""
         if self.media_encoding:
             return self.media_encoding
 
         return guessed_encoding
 
-    def get_file_information(self, file_path):
+    def get_file_information(self, file_path) -> FileMetadata:
         """Load file metadata into the FileMetadata named tuple."""
         guessed_mimetype, guessed_encoding = guess_type(file_path)
         mimetype = self.get_media_mimetype(guessed_mimetype=guessed_mimetype)
@@ -114,7 +116,7 @@ class MediaGuardViewFile(View):
             return self.handle_permission_denied(request, *args, **kwargs)
 
         # get our media path relative to the media root
-        self.rel_media_path = str(self.get_media_file_path(request, *args, **kwargs))
+        self.rel_media_path = self.get_media_file_path(request, *args, **kwargs)
 
         # load the absolute path
         self.abs_media_path = path.abspath(
