@@ -1,6 +1,6 @@
 from django.core.exceptions import ImproperlyConfigured
 from django.conf import settings
-from django.test import TestCase, override_settings
+from django.test import override_settings
 import pytest
 
 from media_guard.backends.nginx import MediaGuardNginxBackend
