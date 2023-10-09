@@ -12,7 +12,7 @@ setup(
     url="https://github.com/omni-digital/django-media-guard",
     packages=find_packages(exclude=["example", "tests"]),
     include_package_data=True,
-    install_requires=["Django>=1.11,<2.3"],
+    install_requires=["Django>=1.11,<3.3"],
     license="MIT",
     zip_safe=False,
     keywords=["django", "media", "guard", "protect"],
