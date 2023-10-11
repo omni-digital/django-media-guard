@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="django-media-guard",
-    version="0.1.1",
+    version="0.1.2",
     description="""""",
     author="Omni Digital",
     author_email="engineering@omni-digital.co.uk",
@@ -22,6 +22,7 @@ setup(
         "Framework :: Django :: 1.11",
         "Framework :: Django :: 2.0",
         "Framework :: Django :: 2.1",
+        "Framework :: Django :: 2.3",
         "Intended Audience :: Developers",
         "License :: OSI Approved :: BSD License",
         "Natural Language :: English",
