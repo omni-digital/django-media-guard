@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="django-media-guard",
-    version="0.1.2",
+    version="0.1.3",
     description="""""",
     author="Omni Digital",
     author_email="engineering@omni-digital.co.uk",
